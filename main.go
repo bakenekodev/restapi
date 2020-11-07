@@ -60,7 +60,7 @@ func main() {
 	r := mux.NewRouter()
 
 	// Database
-	db, err = sql.Open("mysql", "root:ON%6RJ@@tcp(localhost:3306)/schema")
+	db, err = sql.Open("mysql", "root:jyi6hk@tcp(34.89.173.199:3306)/app")
 
 	if err != nil {
 		panic(err.Error())
@@ -83,7 +83,7 @@ func getUsers(w http.ResponseWriter, r *http.Request) {
 
 	var users []User
 
-	results, err := db.Query("SELECT id, login, password, name, surname, telephone, car_id From user")
+	results, err := db.Query("SELECT id, login, password, name, surname, telephone, car_id From users")
 	defer results.Close()
 	if err != nil {
 		panic(err.Error())
@@ -96,7 +96,7 @@ func getUsers(w http.ResponseWriter, r *http.Request) {
 		}
 		if user.carID.Valid {
 			user.Car = new(Car)
-			db.QueryRow("SELECT id, mark, model, year, seats FROM car WHERE id = ?", &user.carID).Scan(&user.Car.ID, &user.Car.Mark, &user.Car.Model, &user.Car.Year, &user.Car.Seats)
+			db.QueryRow("SELECT id, mark, model, year, seats FROM cars WHERE id = ?", &user.carID).Scan(&user.Car.ID, &user.Car.Mark, &user.Car.Model, &user.Car.Year, &user.Car.Seats)
 		}
 		users = append(users, user)
 	}
@@ -109,7 +109,7 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r) // Get params
 
-	result, err := db.Query("SELECT id, login, password, name, surname, telephone, car_id From user WHERE ID = ?", params["id"])
+	result, err := db.Query("SELECT id, login, password, name, surname, telephone, car_id From users WHERE ID = ?", params["id"])
 	if err != nil {
 		panic(err.Error())
 	}
@@ -124,7 +124,7 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 		}
 		if user.carID.Valid {
 			user.Car = new(Car)
-			db.QueryRow("SELECT id, mark, model, year, seats FROM car WHERE id = ?", &user.carID).Scan(&user.Car.ID, &user.Car.Mark, &user.Car.Model, &user.Car.Year, &user.Car.Seats)
+			db.QueryRow("SELECT id, mark, model, year, seats FROM cars WHERE id = ?", &user.carID).Scan(&user.Car.ID, &user.Car.Mark, &user.Car.Model, &user.Car.Year, &user.Car.Seats)
 		}
 	}
 	json.NewEncoder(w).Encode(user)
@@ -139,7 +139,7 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 
 	log.Println(user.Car)
 	if user.Car != nil {
-		result, err := db.Exec("INSERT INTO car(mark, model, year, seats, driving_lic) VALUES (?, ?, ?, ?, 1)", user.Car.Mark, user.Car.Model, user.Car.Year, user.Car.Seats)
+		result, err := db.Exec("INSERT INTO cars(mark, model, year, seats, driving_lic) VALUES (?, ?, ?, ?, 1)", user.Car.Mark, user.Car.Model, user.Car.Year, user.Car.Seats)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -151,7 +151,7 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 			user.carID.Valid = true
 		}
 	}
-	_, err = db.Exec("INSERT INTO user(login, password, name, surname, telephone, photo, car_id) VALUES(?, ?, ?, ?, ?, 1, ?)", user.Login, user.Password, user.Name, user.Surmane, user.Phone, user.carID)
+	_, err = db.Exec("INSERT INTO users(login, password, name, surname, telephone, photo, car_id) VALUES(?, ?, ?, ?, ?, 1, ?)", user.Login, user.Password, user.Name, user.Surmane, user.Phone, user.carID)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -167,17 +167,17 @@ func updateUser(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewDecoder(r.Body).Decode(&user)
 	user.ID = params["id"]
 
-	db.QueryRow("SELECT car_id FROM user WHERE id = ?", user.ID).Scan(&user.carID)
+	db.QueryRow("SELECT car_id FROM users WHERE id = ?", user.ID).Scan(&user.carID)
 
 	if user.carID.Valid {
-		_, err := db.Exec("UPDATE car set mark = ?, model = ?, year = ?, seats = ?, driving_lic = 1 WHERE id = ?",
+		_, err := db.Exec("UPDATE cars set mark = ?, model = ?, year = ?, seats = ?, driving_lic = 1 WHERE id = ?",
 			user.Car.Mark, user.Car.Model, user.Car.Year, user.Car.Seats, user.carID)
 		if err != nil {
 			panic(err.Error())
 		}
 	}
 
-	_, err = db.Exec("update user set login = ?, password = ?, name = ?, surname = ?, telephone = ?, photo = 1, car_id = ? where id = ?", user.Login, user.Password, user.Name, user.Surmane, user.Phone, user.carID, user.ID)
+	_, err = db.Exec("update users set login = ?, password = ?, name = ?, surname = ?, telephone = ?, photo = 1, car_id = ? where id = ?", user.Login, user.Password, user.Name, user.Surmane, user.Phone, user.carID, user.ID)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -190,15 +190,15 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 	userID := mux.Vars(r)["id"]
 	var carID sql.NullInt64
 
-	db.QueryRow("SELECT car_id FROM user WHERE id = ?", userID).Scan(&carID)
+	db.QueryRow("SELECT car_id FROM users WHERE id = ?", userID).Scan(&carID)
 
-	_, err := db.Exec("delete from user where id = ?", userID)
+	_, err := db.Exec("delete from users where id = ?", userID)
 	if err != nil {
 		panic(err.Error())
 	}
 
 	if carID.Valid {
-		_, err := db.Exec("delete from car where id = ?", carID)
+		_, err := db.Exec("delete from cars where id = ?", carID)
 		if err != nil {
 			panic(err.Error())
 		}
