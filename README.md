@@ -11,50 +11,52 @@ go get -u github.com/gorilla/mux
 ```
 
 ``` bash
-go build
-./go_restapi
+go build | ./restapi
 ```
 
 ## Endpoints
 
-### Get All Books
+### Get All Users
 ``` bash
-GET api/books
+GET api/users
 ```
-### Get Single Book
+### Get Single Users
 ``` bash
-GET api/books/{id}
-```
-
-### Delete Book
-``` bash
-DELETE api/books/{id}
+GET api/users/{id}
 ```
 
-### Create Book
+### Delete Users
 ``` bash
-POST api/books
+DELETE api/users/{id}
+```
+
+### Create User
+``` bash
+POST api/users
 
 # Request sample
-# {
-#   "isbn":"4545454",
-#   "title":"Book Three",
-#   "author":{"firstname":"Harry",  "lastname":"White"}
-# }
+{
+    "id": "2",
+    "login": "numele",
+    "password": "123",
+    "name": "Marius",
+    "surname": "Bitca",
+    "phone": "069000000",
+    "car": null
+}
 ```
 
-### Update Book
+### Update User
 ``` bash
-PUT api/books/{id}
+PUT api/users/{id}
 
 # Request sample
-# {
-#   "isbn":"4545454",
-#   "title":"Updated Title",
-#   "author":{"firstname":"Harry",  "lastname":"White"}
-# }
-
-```
-
-
+{
+    "login": "numele",
+    "password": "123",
+    "name": "Marius",
+    "surname": "Bitca",
+    "phone": "069000000",
+    "car": null
+}
 ```
