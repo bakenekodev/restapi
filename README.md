@@ -1,6 +1,6 @@
 # Simple GO Lang REST API
 
-> Simple RESTful API to create, read, update and delete books. No database implementation yet
+> Simple RESTful API to create, read, update and delete users. Connected with a MySQL server.
 
 ## Quick Start
 
@@ -34,15 +34,28 @@ DELETE api/users/{id}
 ``` bash
 POST api/users
 
-# Request sample
+# Request sample if user has a car
 {
-    "id": "2",
-    "login": "numele",
-    "password": "123",
-    "name": "Marius",
-    "surname": "Bitca",
-    "phone": "069000000",
-    "car": null
+   "login": "name",
+   "password": "pass",
+   "name": "New",
+   "surname": "User",
+   "phone": "069000000",
+   "car": {
+      "mark":"Nissan",
+      "model":"GTR",
+      "year":"2020",
+      "seats":"4"
+   }
+}
+# If car is null
+{
+   "login":"name",
+   "password":"pass",
+   "name":"New",
+   "surname":"User",
+   "phone":"069000000",
+   "car": null
 }
 ```
 
@@ -52,11 +65,26 @@ PUT api/users/{id}
 
 # Request sample
 {
-    "login": "numele",
-    "password": "123",
-    "name": "Marius",
-    "surname": "Bitca",
-    "phone": "069000000",
-    "car": null
+   "login":"name",
+   "password":"pass",
+   "name":"New",
+   "surname":"User",
+   "phone":"069000000",
+   "car":{
+      "mark":"Nissan",
+      "model":"GTR",
+      "year":"2020",
+      "seats":"4"
+   }
+}
+
+# If car is null
+{
+   "login":"name",
+   "password":"pass",
+   "name":"New",
+   "surname":"User",
+   "phone":"069000000",
+   "car": null
 }
 ```
