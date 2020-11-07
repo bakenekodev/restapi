@@ -1,16 +1,18 @@
-# Simple GO Lang REST API
+# GO Lang REST API
 
-> Simple RESTful API to create, read, update and delete users. Connected with a MySQL server.
+> RESTful API to handle requests from the HitchHike application. Connected with a MySQL server from Google Cloud.
 
 ## Quick Start
 
 
 ``` bash
-# Install mux router
+# Install mux router and mysql driver
+go get -u github.com/go-sql-driver/mysql
 go get -u github.com/gorilla/mux
 ```
 
 ``` bash
+# Run
 go build | ./restapi
 ```
 
