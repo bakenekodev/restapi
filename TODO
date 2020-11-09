@@ -1,0 +1,12 @@
+
+Todos:
+  ☐ Create all the functions for drivers and passengers @critical 
+  ☐ Make diriving_lic and photo base64   @high 
+  ☐ Add status codes for every request   @high 
+  ☐ Decide how to store passwords        @high 
+  ☐ Make test files                      @high 
+  ☐ Create meaningful functions comments @low 
+  ✔ Separate SQL queries from the user file @done(20-11-09 22:00)
+  ✔ Separate user functions from main.go    @done(20-11-08 17:08)
+  ✔ Connect to Cloud SQL through proxy      @done(20-11-08 18  :23)
+
