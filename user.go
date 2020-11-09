@@ -13,7 +13,7 @@ import (
 type User struct {
 	ID       string `json:"id"`
 	Login    string `json:"login"`
-	Password string `json:"password"` // TODO: secure authentication
+	Password string `json:"password"`
 	Name     string `json:"name"`
 	Surmane  string `json:"surname"`
 	Phone    string `json:"phone"`
@@ -36,7 +36,7 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 
 	var users []User
 
-	results, err := DB.Query("SELECT id, login, password, name, surname, telephone, car_id From users")
+	results, err := DB.Query(Queries["selectUsers"])
 	if err != nil {
 		panic(err.Error())
 	}
@@ -49,7 +49,7 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 		}
 		if user.carID.Valid {
 			user.Car = new(Car)
-			DB.QueryRow("SELECT id, mark, model, year, seats FROM cars WHERE id = ?", user.carID).Scan(&user.Car.ID, &user.Car.Mark, &user.Car.Model, &user.Car.Year, &user.Car.Seats)
+			DB.QueryRow(Queries["selectCarByID"], user.carID).Scan(&user.Car.ID, &user.Car.Mark, &user.Car.Model, &user.Car.Year, &user.Car.Seats)
 		}
 		users = append(users, user)
 	}
@@ -61,21 +61,21 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// GetUser function
+// GetUser gets the user json by id
 func GetUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r) // Get params
 
 	// Test if user id exists in database
 	var testID sql.NullString
-	DB.QueryRow("SELECT id FROM users WHERE id = ? LIMIT 1", params["id"]).Scan(&testID)
+	DB.QueryRow(Queries["selectID"], params["id"]).Scan(&testID)
 	if !testID.Valid {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("404 - ID not found"))
 		return
 	}
 
-	result, err := DB.Query("SELECT id, login, password, name, surname, telephone, car_id From users WHERE ID = ?", params["id"])
+	result, err := DB.Query(Queries["selectUserByID"], params["id"])
 	if err != nil {
 		panic(err.Error())
 	}
@@ -90,21 +90,21 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		}
 		if user.carID.Valid {
 			user.Car = new(Car)
-			DB.QueryRow("SELECT id, mark, model, year, seats FROM cars WHERE id = ?", user.carID).Scan(&user.Car.ID, &user.Car.Mark, &user.Car.Model, &user.Car.Year, &user.Car.Seats)
+			DB.QueryRow(Queries["selectCarByID"], user.carID).Scan(&user.Car.ID, &user.Car.Mark, &user.Car.Model, &user.Car.Year, &user.Car.Seats)
 		}
 	}
 	json.NewEncoder(w).Encode(user)
 }
 
 // CreateUser function
-func CreateUser(w http.ResponseWriter, r *http.Request) { // TODO: make driving_lic and photo base64
+func CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var user User
 	_ = json.NewDecoder(r.Body).Decode(&user)
 
 	log.Println(user.Car)
 	if user.Car != nil {
-		result, err := DB.Exec("INSERT INTO cars(mark, model, year, seats, driving_lic) VALUES (?, ?, ?, ?, 1)", user.Car.Mark, user.Car.Model, user.Car.Year, user.Car.Seats)
+		result, err := DB.Exec(Queries["insertCar"], user.Car.Mark, user.Car.Model, user.Car.Year, user.Car.Seats)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -116,7 +116,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) { // TODO: make driving_
 			user.carID.Valid = true
 		}
 	}
-	_, err = DB.Exec("INSERT INTO users(login, password, name, surname, telephone, photo, car_id) VALUES(?, ?, ?, ?, ?, 1, ?)", user.Login, user.Password, user.Name, user.Surmane, user.Phone, user.carID)
+	_, err = DB.Exec(Queries["insertUser"], user.Login, user.Password, user.Name, user.Surmane, user.Phone, user.carID)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -129,7 +129,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	// Test if user id exists in database
 	var testID sql.NullString
-	DB.QueryRow("SELECT id FROM users WHERE id = ? LIMIT 1", params["id"]).Scan(&testID)
+	DB.QueryRow(Queries["selectID"], params["id"]).Scan(&testID)
 	if !testID.Valid {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("404 - ID not found"))
@@ -140,18 +140,15 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	user.ID = params["id"]
 	_ = json.NewDecoder(r.Body).Decode(&user)
 
-	DB.QueryRow("SELECT car_id FROM users WHERE id = ?", user.ID).Scan(&user.carID)
+	DB.QueryRow(Queries["selectCarIdByID"], user.ID).Scan(&user.carID)
 
 	if user.carID.Valid && user.Car != nil {
-		_, err := DB.Exec("UPDATE cars set mark = ?, model = ?, year = ?, seats = ?, driving_lic = 1 WHERE id = ?",
-			user.Car.Mark, user.Car.Model, user.Car.Year, user.Car.Seats, user.carID)
+		_, err := DB.Exec(Queries["updateCarByID"], user.Car.Mark, user.Car.Model, user.Car.Year, user.Car.Seats, user.carID)
 		if err != nil {
 			panic(err.Error())
 		}
-	} else if user.carID.Valid && user.Car == nil {
-		// TODO remove car
 	} else if !user.carID.Valid && user.Car != nil {
-		result, err := DB.Exec("INSERT INTO cars(mark, model, year, seats, driving_lic) VALUES (?, ?, ?, ?, 1)", user.Car.Mark, user.Car.Model, user.Car.Year, user.Car.Seats)
+		result, err := DB.Exec(Queries["insertCar"], user.Car.Mark, user.Car.Model, user.Car.Year, user.Car.Seats)
 		if err != nil {
 			panic(err.Error())
 		}
