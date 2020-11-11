@@ -26,7 +26,7 @@ func main() {
 
 	// Prepare the database
 	//setUpDB()
-	DB, err = sql.Open("mysql", "root:ht7n0*h66+@tcp(127.0.0.1:3306)/app")
+	DB, err = sql.Open("mysql", "root:password@tcp(127.0.0.1:3306)/app")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -51,7 +51,7 @@ func main() {
 
 	srv := &http.Server{
 		Handler: r,
-		Addr:    "0.0.0.0:8880",
+		Addr:    "127.0.0.1:8880",
 	}
 	log.Fatal(srv.ListenAndServe())
 }
