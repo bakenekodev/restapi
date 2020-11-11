@@ -25,7 +25,11 @@ var err error
 func main() {
 
 	// Prepare the database
-	setUpDB()
+	//setUpDB()
+	DB, err = sql.Open("mysql", "root:ht7n0*h66+@tcp(127.0.0.1:3306)/app")
+	if err != nil {
+		panic(err.Error())
+	}
 	defer DB.Close()
 
 	// Prepare the queries
@@ -43,9 +47,13 @@ func main() {
 	r.HandleFunc("/api/users/{id}", DeleteUser).Methods("DELETE")
 
 	// Driver
-	r.HandleFunc("/api/drivers", CreateDriverTrip).Methods("POST")
+	r.HandleFunc("/api/drivers", CreateDriverRoute).Methods("POST")
 
-	log.Fatal(http.ListenAndServe(":8000", r))
+	srv := &http.Server{
+		Handler: r,
+		Addr:    "0.0.0.0:8880",
+	}
+	log.Fatal(srv.ListenAndServe())
 }
 
 // setUpDB connects to the Cloud SQL throgh a proxy server
