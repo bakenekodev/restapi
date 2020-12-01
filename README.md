@@ -5,21 +5,23 @@
 
 ## Endpoints
 
-### Get All Users
+### User
+
+#### Get All Users
 ``` bash
 GET api/users
 ```
-### Get Single Users
+#### Get Single User
 ``` bash
 GET api/users/{id}
 ```
 
-### Delete Users
+#### Delete User
 ``` bash
 DELETE api/users/{id}
 ```
 
-### Create User
+#### Create User
 ``` bash
 POST api/users
 
@@ -48,7 +50,7 @@ POST api/users
 }
 ```
 
-### Update User
+#### Update User
 ``` bash
 PUT api/users/{id}
 
@@ -75,5 +77,47 @@ PUT api/users/{id}
    "surname":"User",
    "phone":"069000000",
    "car": null
+}
+```
+
+## Car
+
+#### Get All Cars
+``` bash
+GET api/cars
+```
+#### Get Single Car
+``` bash
+GET api/cars/{id}
+```
+
+#### Delete Car
+``` bash
+DELETE api/cars/{id}
+```
+
+#### Create Car
+``` bash
+POST api/cars
+
+# Request sample
+{
+   "mark":"Nissan",
+   "model":"GTR",
+   "year":"2020",
+   "seats":"4"
+}
+```
+
+#### Update Car
+``` bash
+PUT api/cars/{id}
+
+# Request sample
+{
+   "mark":"Nissan",
+   "model":"GTR",
+   "year":"2020",
+   "seats":"4"
 }
 ```

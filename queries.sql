@@ -20,6 +20,16 @@ WHERE id = ?
 DELETE FROM users 
 WHERE id = ?  
 
+-- name: selectUserID
+SELECT id
+FROM users
+WHERE id = ?
+LIMIT 1
+
+-- name: selectCars
+SELECT id, mark, model, year, seats
+FROM cars
+
 -- name: selectCarByID
 SELECT id, mark, model, year, seats 
 FROM cars 
@@ -38,16 +48,15 @@ WHERE id = ?
 DELETE FROM cars 
 WHERE id = ?
 
--- name: selectCarIdByID
+-- name: selectCarIdByUser
 SELECT car_id 
 FROM users 
 WHERE id = ?
 
--- name: selectID
+-- name: selectCarID
 SELECT id
-FROM users
+FROM cars
 WHERE id = ?
-LIMIT 1
 
 -- name: insertDriverRoute
 INSERT INTO dirvers_trips(driver_id, start_lat, start_lng, end_lat, end_lng, start_time, end_time) 
