@@ -1,0 +1,6 @@
+github.com/gorilla/mux v1.8.1-0.20200912192056-d07530f46e1e h1:8+CIGbDW29nl9niCoMrpF8+ACFz3rLRpIjuqnx4rNKg=
+github.com/gorilla/mux v1.8.1-0.20200912192056-d07530f46e1e/go.mod h1:DVbg23sWSpFRCP0SfiEN6jmj59UnW/n46BH5rLB71So=
+github.com/lib/pq v1.8.1-0.20201124202335-11a44e269948 h1:CbP8zog/NoO5gN3BXaEhmDEHZJiVzY60Ifcj7R2TWT8=
+github.com/lib/pq v1.8.1-0.20201124202335-11a44e269948/go.mod h1:AlVN5x4E4T544tWzH6hKfbfQvm3HdbOxrmggDNAPY9o=
+github.com/nleof/goyesql v1.0.2-0.20180210141855-531a8afe09e9 h1:ef6K6S5dewnX09X8thrLqzMMJf1jkQkL7SPTCLTRyLs=
+github.com/nleof/goyesql v1.0.2-0.20180210141855-531a8afe09e9/go.mod h1:tpOzlGZT8etKGAEp2dlYX2CFeVHQiC9VMYY1kaeHrC4=
