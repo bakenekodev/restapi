@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -94,28 +93,19 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewDecoder(r.Body).Decode(&user)
 
 	if user.Car != nil {
-		result, err := DB.Exec(Queries["insertCar"], user.Car.Mark, user.Car.Model, user.Car.Year, user.Car.Seats)
+		err := DB.QueryRow(Queries["insertCar"], user.Car.Mark, user.Car.Model, user.Car.Year, user.Car.Seats).Scan(&user.carID)
 		if err != nil {
 			panic(err.Error())
 		}
+	}
 
-		user.carID.Int64, err = result.LastInsertId()
-		if err != nil {
-			panic(err.Error())
-		} else {
-			user.carID.Valid = true
-		}
-	}
-	result, err := DB.Exec(Queries["insertUser"], user.Login, user.Password, user.Name, user.Surmane, user.Phone, user.carID)
-	if err != nil {
-		panic(err.Error())
-	}
-	id, err := result.LastInsertId()
+	var id sql.NullString
+	err := DB.QueryRow(Queries["insertUser"], user.Login, user.Password, user.Name, user.Surmane, user.Phone, user.carID).Scan(&id)
 	if err != nil {
 		panic(err.Error())
 	} else {
 		w.WriteHeader(http.StatusCreated)
-		w.Write([]byte("/api/users/" + strconv.Itoa(int(id))))
+		w.Write([]byte("/api/users/" + id.String))
 	}
 }
 

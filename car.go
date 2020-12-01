@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -72,17 +71,13 @@ func CreateCar(w http.ResponseWriter, r *http.Request) {
 	var car Car
 	_ = json.NewDecoder(r.Body).Decode(&car)
 
-	result, err := DB.Exec(Queries["insertCar"], car.Mark, car.Model, car.Year, car.Seats)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	id, err := result.LastInsertId()
+	var id sql.NullString
+	err := DB.QueryRow(Queries["insertCar"], car.Mark, car.Model, car.Year, car.Seats).Scan(&id)
 	if err != nil {
 		panic(err.Error())
 	} else {
 		w.WriteHeader(http.StatusCreated)
-		w.Write([]byte("/api/cars/" + strconv.Itoa(int(id))))
+		w.Write([]byte("/api/cars/" + id.String))
 	}
 }
 

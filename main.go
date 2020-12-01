@@ -2,29 +2,48 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
+	_ "github.com/lib/pq"
 	goyesql "github.com/nleof/goyesql"
 )
 
-// DB is the global MySQL database
+// DB is the global Postgres database
 var DB *sql.DB
+
+// Conection info
+const (
+	host     = "ec2-54-228-170-125.eu-west-1.compute.amazonaws.com"
+	port     = 5432
+	user     = "gctgugggvhltaw"
+	password = "f832bb546fa4574d3b49c28da0e7c8a007154de81aeaa82a14b62836fa11e929"
+	dbname   = "dgobk4k3st1m1"
+)
 
 // Queries is a map that stores all the SQL queries
 var Queries goyesql.Queries
 var err error
 
 func main() {
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+		"password=%s dbname=%s sslmode=require",
+		host, port, user, password, dbname)
 
 	// Prepare the database
-	DB, err = sql.Open("mysql", "root:jyi6hk@tcp(34.89.173.199:3306)/app")
+	DB, err = sql.Open("postgres", psqlInfo)
 	if err != nil {
 		panic(err.Error())
 	}
 	defer DB.Close()
+	err = DB.Ping()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("DB connected!")
 
 	// Prepare the queries
 	Queries = goyesql.MustParseFile("queries.sql")
@@ -50,9 +69,14 @@ func main() {
 	// Driver
 	r.HandleFunc("/api/drivers", CreateDriverRoute).Methods("POST")
 
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8000"
+	}
+	log.Println(port)
 	srv := &http.Server{
 		Handler: r,
-		Addr:    "127.0.0.1:8000",
+		Addr:    "0.0.0.0:" + port,
 	}
 	log.Fatal(srv.ListenAndServe())
 }
