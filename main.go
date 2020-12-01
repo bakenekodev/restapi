@@ -1,18 +1,13 @@
 package main
 
 import (
-	"context"
 	"database/sql"
-	"io/ioutil"
 	"log"
 	"net/http"
 
-	"github.com/GoogleCloudPlatform/cloudsql-proxy/proxy/dialers/mysql"
-	"github.com/GoogleCloudPlatform/cloudsql-proxy/proxy/proxy"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	goyesql "github.com/nleof/goyesql"
-	"golang.org/x/oauth2/google"
 )
 
 // DB is the global MySQL database
@@ -25,8 +20,7 @@ var err error
 func main() {
 
 	// Prepare the database
-	//setUpDB()
-	DB, err = sql.Open("mysql", "root:password@tcp(127.0.0.1:3306)/app")
+	DB, err = sql.Open("mysql", "root:jyi6hk@tcp(34.89.173.199:3306)/app")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -46,39 +40,19 @@ func main() {
 	r.HandleFunc("/api/users/{id}", UpdateUser).Methods("PUT")
 	r.HandleFunc("/api/users/{id}", DeleteUser).Methods("DELETE")
 
+	// Car
+	r.HandleFunc("/api/cars", GetCars).Methods("GET")
+	r.HandleFunc("/api/cars", CreateCar).Methods("POST")
+	r.HandleFunc("/api/cars/{id}", GetCar).Methods("GET")
+	r.HandleFunc("/api/cars/{id}", UpdateCar).Methods("PUT")
+	r.HandleFunc("/api/cars/{id}", DeleteCar).Methods("DELETE")
+
 	// Driver
 	r.HandleFunc("/api/drivers", CreateDriverRoute).Methods("POST")
 
 	srv := &http.Server{
 		Handler: r,
-		Addr:    "127.0.0.1:8880",
+		Addr:    "127.0.0.1:8000",
 	}
 	log.Fatal(srv.ListenAndServe())
-}
-
-// setUpDB connects to the Cloud SQL throgh a proxy server
-func setUpDB() {
-	credsFile := "credentials.json"
-	SQLScope := "https://www.googleapis.com/auth/sqlservice.admin"
-	ctx := context.Background()
-
-	creds, err := ioutil.ReadFile(credsFile)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	cfg, err := google.JWTConfigFromJSON(creds, SQLScope)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	client := cfg.Client(ctx)
-	proxy.Init(client, nil, nil)
-
-	cf := mysql.Cfg("sacred-tenure-294609:europe-west3:database", "root", "jyi6hk")
-	cf.DBName = "app"
-	DB, err = mysql.DialCfg(cf)
-	if err != nil {
-		panic(err.Error())
-	}
 }
