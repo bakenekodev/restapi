@@ -70,6 +70,10 @@ func main() {
 	r.HandleFunc("/api/drivers", CreateDriverRoute).Methods("POST")
 
 	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8000"
+	}
+	log.Println(port)
 	srv := &http.Server{
 		Handler: r,
 		Addr:    "0.0.0.0:" + port,
