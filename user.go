@@ -3,8 +3,8 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -19,15 +19,6 @@ type User struct {
 	Phone    string `json:"phone"`
 	carID    sql.NullInt64
 	Car      *Car `json:"car"`
-}
-
-// Car Struct
-type Car struct {
-	ID    string `json:"id"`
-	Mark  string `json:"mark"`
-	Model string `json:"model"`
-	Year  string `json:"year"`
-	Seats string `json:"seats"`
 }
 
 // GetUsers function
@@ -68,7 +59,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 
 	// Test if user id exists in database
 	var testID sql.NullString
-	DB.QueryRow(Queries["selectID"], params["id"]).Scan(&testID)
+	DB.QueryRow(Queries["selectUserID"], params["id"]).Scan(&testID)
 	if !testID.Valid {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("404 - ID not found"))
@@ -102,7 +93,6 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	var user User
 	_ = json.NewDecoder(r.Body).Decode(&user)
 
-	log.Println(user.Car)
 	if user.Car != nil {
 		result, err := DB.Exec(Queries["insertCar"], user.Car.Mark, user.Car.Model, user.Car.Year, user.Car.Seats)
 		if err != nil {
@@ -116,9 +106,16 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 			user.carID.Valid = true
 		}
 	}
-	_, err = DB.Exec(Queries["insertUser"], user.Login, user.Password, user.Name, user.Surmane, user.Phone, user.carID)
+	result, err := DB.Exec(Queries["insertUser"], user.Login, user.Password, user.Name, user.Surmane, user.Phone, user.carID)
 	if err != nil {
 		panic(err.Error())
+	}
+	id, err := result.LastInsertId()
+	if err != nil {
+		panic(err.Error())
+	} else {
+		w.WriteHeader(http.StatusCreated)
+		w.Write([]byte("/api/users/" + strconv.Itoa(int(id))))
 	}
 }
 
@@ -129,7 +126,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	// Test if user id exists in database
 	var testID sql.NullString
-	DB.QueryRow(Queries["selectID"], params["id"]).Scan(&testID)
+	DB.QueryRow(Queries["selectUserID"], params["id"]).Scan(&testID)
 	if !testID.Valid {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("404 - ID not found"))
@@ -140,7 +137,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	user.ID = params["id"]
 	_ = json.NewDecoder(r.Body).Decode(&user)
 
-	DB.QueryRow(Queries["selectCarIdByID"], user.ID).Scan(&user.carID)
+	DB.QueryRow(Queries["selectCarIdByUser"], user.ID).Scan(&user.carID)
 
 	if user.carID.Valid && user.Car != nil {
 		_, err := DB.Exec(Queries["updateCarByID"], user.Car.Mark, user.Car.Model, user.Car.Year, user.Car.Seats, user.carID)
@@ -162,9 +159,11 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	_, err = DB.Exec("update users set login = ?, password = ?, name = ?, surname = ?, telephone = ?, photo = 1, car_id = ? where id = ?", user.Login, user.Password, user.Name, user.Surmane, user.Phone, user.carID, user.ID)
+	_, err = DB.Exec(Queries["updateUserByID"], user.Login, user.Password, user.Name, user.Surmane, user.Phone, user.carID, user.ID)
 	if err != nil {
 		panic(err.Error())
+	} else {
+		w.Write([]byte("resource updated"))
 	}
 
 }
@@ -177,7 +176,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	// Test if user id exists in database
 	var testID sql.NullString
-	DB.QueryRow("SELECT id FROM users WHERE id = ? LIMIT 1", userID).Scan(&testID)
+	DB.QueryRow(Queries["selectUserID"], userID).Scan(&testID)
 	if !testID.Valid {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("404 - ID not found"))
@@ -185,15 +184,15 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 	var carID sql.NullInt64
 
-	log.Println(DB.QueryRow("SELECT car_id FROM users WHERE id = ?", userID).Scan(&carID))
+	DB.QueryRow(Queries["selectCarIdByUser"], userID).Scan(&carID)
 
-	_, err := DB.Exec("delete from users where id = ?", userID)
+	_, err := DB.Exec(Queries["deleteUserByID"], userID)
 	if err != nil {
 		panic(err.Error())
 	}
 
 	if carID.Valid {
-		_, err := DB.Exec("delete from cars where id = ?", carID)
+		_, err := DB.Exec(Queries["deleteCarByID"], carID)
 		if err != nil {
 			panic(err.Error())
 		}
