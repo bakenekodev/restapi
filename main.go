@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
@@ -68,9 +69,14 @@ func main() {
 	// Driver
 	r.HandleFunc("/api/drivers", CreateDriverRoute).Methods("POST")
 
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8000"
+	}
+	log.Println(port)
 	srv := &http.Server{
 		Handler: r,
-		Addr:    "127.0.0.1:8000",
+		Addr:    "0.0.0.0:" + port,
 	}
 	log.Fatal(srv.ListenAndServe())
 }

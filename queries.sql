@@ -8,12 +8,13 @@ FROM users
 WHERE id = $1
 
 -- name: insertUser
-INSERT INTO users(login, password, name, surname, telephone, photo, car_id) 
-VALUES($1, $2, $3, $4, $5, 1, $6)
+INSERT INTO users(login, password, name, surname, telephone, car_id) 
+VALUES($1, $2, $3, $4, $5, $6)
+RETURNING id
 
 -- name: updateUserByID
 UPDATE users 
-SET login = $1, password = $2, name = $3, surname = $4, telephone = $5, photo = 1, car_id = $6 
+SET login = $1, password = $2, name = $3, surname = $4, telephone = $5, car_id = $6 
 WHERE id = $7
 
 -- name: deleteUserByID
@@ -35,12 +36,13 @@ FROM cars
 WHERE id = $1
 
 -- name: insertCar
-INSERT INTO cars(mark, model, year, seats, driving_lic) 
-VALUES ($1, $2, $3, $4, 1)
+INSERT INTO cars(mark, model, year, seats) 
+VALUES ($1, $2, $3, $4)
+RETURNING id
 
 -- name: updateCarByID
 UPDATE cars 
-SET mark = $1, model = $2, year = $3, seats = $4, driving_lic = 1 
+SET mark = $1, model = $2, year = $3, seats = $4 
 WHERE id = $5
 
 -- name: deleteCarByID
@@ -60,3 +62,4 @@ WHERE id = $1
 -- name: insertDriverRoute
 INSERT INTO dirvers_trips(driver_id, start_lat, start_lng, end_lat, end_lng, start_time, end_time) 
 VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING id
