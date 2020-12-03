@@ -26,6 +26,9 @@ SELECT id
 FROM users
 WHERE id = $1
 
+-- name: selectPassword
+SELECT password FROM users WHERE login = $1
+
 -- name: selectCars
 SELECT id, mark, model, year, seats
 FROM cars

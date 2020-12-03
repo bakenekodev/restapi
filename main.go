@@ -52,6 +52,10 @@ func main() {
 	r := mux.NewRouter()
 
 	// Route Handlers / Endpoints
+
+	// Login
+	r.HandleFunc("/api/login", GetLogin).Methods("GET")
+
 	// User
 	r.HandleFunc("/api/users", GetUsers).Methods("GET")
 	r.HandleFunc("/api/users", CreateUser).Methods("POST")
