@@ -99,13 +99,12 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	var id sql.NullString
-	err := DB.QueryRow(Queries["insertUser"], user.Login, user.Password, user.Name, user.Surmane, user.Phone, user.carID).Scan(&id)
+	err := DB.QueryRow(Queries["insertUser"], user.Login, user.Password, user.Name, user.Surmane, user.Phone, user.carID).Scan(&user.ID)
 	if err != nil {
 		panic(err.Error())
 	} else {
 		w.WriteHeader(http.StatusCreated)
-		w.Write([]byte("/api/users/" + id.String))
+		json.NewEncoder(w).Encode(user)
 	}
 }
 
@@ -186,5 +185,22 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			panic(err.Error())
 		}
+	}
+}
+
+// GetLogin function
+func GetLogin(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	var i interface{}
+	var pass sql.NullString
+	_ = json.NewDecoder(r.Body).Decode(&i)
+	cred := i.(map[string]interface{})
+	DB.QueryRow(Queries["selectPassword"], cred["login"]).Scan(&pass)
+	if !pass.Valid || pass.String != cred["password"] {
+		w.WriteHeader(http.StatusCreated)
+		w.Write([]byte("Login Failed"))
+	} else {
+		w.Write([]byte("Login Successful"))
 	}
 }

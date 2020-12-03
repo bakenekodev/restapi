@@ -71,13 +71,12 @@ func CreateCar(w http.ResponseWriter, r *http.Request) {
 	var car Car
 	_ = json.NewDecoder(r.Body).Decode(&car)
 
-	var id sql.NullString
-	err := DB.QueryRow(Queries["insertCar"], car.Mark, car.Model, car.Year, car.Seats).Scan(&id)
+	err := DB.QueryRow(Queries["insertCar"], car.Mark, car.Model, car.Year, car.Seats).Scan(&car.ID)
 	if err != nil {
 		panic(err.Error())
 	} else {
 		w.WriteHeader(http.StatusCreated)
-		w.Write([]byte("/api/cars/" + id.String))
+		json.NewEncoder(w).Encode(car)
 	}
 }
 
