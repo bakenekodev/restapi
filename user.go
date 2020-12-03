@@ -195,12 +195,13 @@ func GetLogin(w http.ResponseWriter, r *http.Request) {
 	password, ok2 := r.URL.Query()["password"]
 	if ok1 && ok2 {
 		var pass sql.NullString
-		DB.QueryRow(Queries["selectPassword"], login[0]).Scan(&pass)
+		var id sql.NullString
+		DB.QueryRow(Queries["selectPassword"], login[0]).Scan(&pass, &id)
 		if !pass.Valid || pass.String != password[0] {
-			w.WriteHeader(http.StatusCreated)
+			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte("Login Failed"))
 		} else {
-			w.Write([]byte("Login Successful"))
+			w.Write([]byte(id.String))
 		}
 
 	}
