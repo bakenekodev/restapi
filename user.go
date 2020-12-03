@@ -190,17 +190,18 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 // GetLogin function
 func GetLogin(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 
-	var i interface{}
-	var pass sql.NullString
-	_ = json.NewDecoder(r.Body).Decode(&i)
-	cred := i.(map[string]interface{})
-	DB.QueryRow(Queries["selectPassword"], cred["login"]).Scan(&pass)
-	if !pass.Valid || pass.String != cred["password"] {
-		w.WriteHeader(http.StatusCreated)
-		w.Write([]byte("Login Failed"))
-	} else {
-		w.Write([]byte("Login Successful"))
+	login, ok1 := r.URL.Query()["login"]
+	password, ok2 := r.URL.Query()["password"]
+	if ok1 && ok2 {
+		var pass sql.NullString
+		DB.QueryRow(Queries["selectPassword"], login[0]).Scan(&pass)
+		if !pass.Valid || pass.String != password[0] {
+			w.WriteHeader(http.StatusCreated)
+			w.Write([]byte("Login Failed"))
+		} else {
+			w.Write([]byte("Login Successful"))
+		}
+
 	}
 }
