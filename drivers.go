@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
@@ -20,11 +21,13 @@ type Route struct {
 // CreateDriverRoute adds a driver trip record to database
 func CreateDriverRoute(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	var trip Route
+	var trip [][]float32
 	_ = json.NewDecoder(r.Body).Decode(&trip)
 
-	_, err := DB.Exec(Queries["insertDriverRoute"], trip.DriverID, trip.StartLat, trip.StartLng, trip.EndLat, trip.EndLng, trip.StartTime, trip.EndTime)
-	if err != nil {
-		panic(err.Error())
-	}
+	log.Println(trip)
+
+	//_, err := DB.Exec(Queries["insertDriverRoute"], trip.DriverID, trip.StartLat, trip.StartLng, trip.EndLat, trip.EndLng, trip.StartTime, trip.EndTime)
+	// if err != nil {
+	// 	panic(err.Error())
+	// }
 }

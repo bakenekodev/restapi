@@ -1,21 +1,21 @@
 -- name: selectUsers
-SELECT id, login, password, name, surname, telephone, car_id 
+SELECT id, name, surname, telephone, car_id 
 FROM users
 
 -- name: selectUserByID
-SELECT id, login, password, name, surname, telephone, car_id 
+SELECT id, name, surname, telephone, car_id 
 FROM users 
 WHERE id = $1
 
 -- name: insertUser
-INSERT INTO users(login, password, name, surname, telephone, car_id) 
-VALUES($1, $2, $3, $4, $5, $6)
+INSERT INTO users(id, name, surname, telephone, car_id) 
+VALUES($1, $2, $3, $4, $5)
 RETURNING id
 
 -- name: updateUserByID
 UPDATE users 
-SET login = $1, password = $2, name = $3, surname = $4, telephone = $5, car_id = $6 
-WHERE id = $7
+SET name = $1, surname = $2, telephone = $3, car_id = $4 
+WHERE id = $5
 
 -- name: deleteUserByID
 DELETE FROM users 
@@ -27,7 +27,7 @@ FROM users
 WHERE id = $1
 
 -- name: selectPassword
-SELECT password, id FROM users WHERE login = $1
+SELECT password, id FROM credentials WHERE login = $1
 
 -- name: selectCars
 SELECT id, mark, model, year, seats

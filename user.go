@@ -10,14 +10,12 @@ import (
 
 // User Struct (Model)
 type User struct {
-	ID       string `json:"id"`
-	Login    string `json:"login"`
-	Password string `json:"password"`
-	Name     string `json:"name"`
-	Surmane  string `json:"surname"`
-	Phone    string `json:"phone"`
-	carID    sql.NullInt64
-	Car      *Car `json:"car"`
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	Surmane string `json:"surname"`
+	Phone   string `json:"phone"`
+	CarID   string `json:"car_id"`
+	carID   sql.NullString
 }
 
 // GetUsers function
@@ -33,13 +31,12 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 	defer results.Close()
 	for results.Next() {
 		var user User
-		err := results.Scan(&user.ID, &user.Login, &user.Password, &user.Name, &user.Surmane, &user.Phone, &user.carID)
+		err := results.Scan(&user.ID, &user.Name, &user.Surmane, &user.Phone, &user.carID)
+		if user.carID.Valid {
+			user.CarID = user.carID.String
+		}
 		if err != nil {
 			panic(err.Error())
-		}
-		if user.carID.Valid {
-			user.Car = new(Car)
-			DB.QueryRow(Queries["selectCarByID"], user.carID).Scan(&user.Car.ID, &user.Car.Mark, &user.Car.Model, &user.Car.Year, &user.Car.Seats)
 		}
 		users = append(users, user)
 	}
@@ -74,13 +71,12 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	var user User
 
 	for result.Next() {
-		err := result.Scan(&user.ID, &user.Login, &user.Password, &user.Name, &user.Surmane, &user.Phone, &user.carID)
+		err := result.Scan(&user.ID, &user.Name, &user.Surmane, &user.Phone, &user.carID)
+		if user.carID.Valid {
+			user.CarID = user.carID.String
+		}
 		if err != nil {
 			panic(err.Error())
-		}
-		if user.carID.Valid {
-			user.Car = new(Car)
-			DB.QueryRow(Queries["selectCarByID"], user.carID).Scan(&user.Car.ID, &user.Car.Mark, &user.Car.Model, &user.Car.Year, &user.Car.Seats)
 		}
 	}
 	json.NewEncoder(w).Encode(user)
@@ -92,14 +88,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	var user User
 	_ = json.NewDecoder(r.Body).Decode(&user)
 
-	if user.Car != nil {
-		err := DB.QueryRow(Queries["insertCar"], user.Car.Mark, user.Car.Model, user.Car.Year, user.Car.Seats).Scan(&user.carID)
-		if err != nil {
-			panic(err.Error())
-		}
-	}
-
-	err := DB.QueryRow(Queries["insertUser"], user.Login, user.Password, user.Name, user.Surmane, user.Phone, user.carID).Scan(&user.ID)
+	err := DB.QueryRow(Queries["insertUser"], user.ID, user.Name, user.Surmane, user.Phone, user.carID).Scan(&user.ID)
 	if err != nil {
 		panic(err.Error())
 	} else {
@@ -126,29 +115,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	user.ID = params["id"]
 	_ = json.NewDecoder(r.Body).Decode(&user)
 
-	DB.QueryRow(Queries["selectCarIdByUser"], user.ID).Scan(&user.carID)
-
-	if user.carID.Valid && user.Car != nil {
-		_, err := DB.Exec(Queries["updateCarByID"], user.Car.Mark, user.Car.Model, user.Car.Year, user.Car.Seats, user.carID)
-		if err != nil {
-			panic(err.Error())
-		}
-	} else if !user.carID.Valid && user.Car != nil {
-		result, err := DB.Exec(Queries["insertCar"], user.Car.Mark, user.Car.Model, user.Car.Year, user.Car.Seats)
-		if err != nil {
-			panic(err.Error())
-		}
-
-		user.carID.Int64, err = result.LastInsertId()
-		if err != nil {
-			panic(err.Error())
-		} else {
-			user.carID.Valid = true
-		}
-
-	}
-
-	_, err = DB.Exec(Queries["updateUserByID"], user.Login, user.Password, user.Name, user.Surmane, user.Phone, user.carID, user.ID)
+	_, err = DB.Exec(Queries["updateUserByID"], user.Name, user.Surmane, user.Phone, user.carID, user.ID)
 	if err != nil {
 		panic(err.Error())
 	} else {
@@ -171,38 +138,9 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("404 - ID not found"))
 		return
 	}
-	var carID sql.NullInt64
-
-	DB.QueryRow(Queries["selectCarIdByUser"], userID).Scan(&carID)
 
 	_, err := DB.Exec(Queries["deleteUserByID"], userID)
 	if err != nil {
 		panic(err.Error())
-	}
-
-	if carID.Valid {
-		_, err := DB.Exec(Queries["deleteCarByID"], carID)
-		if err != nil {
-			panic(err.Error())
-		}
-	}
-}
-
-// GetLogin function
-func GetLogin(w http.ResponseWriter, r *http.Request) {
-
-	login, ok1 := r.URL.Query()["login"]
-	password, ok2 := r.URL.Query()["password"]
-	if ok1 && ok2 {
-		var pass sql.NullString
-		var id sql.NullString
-		DB.QueryRow(Queries["selectPassword"], login[0]).Scan(&pass, &id)
-		if !pass.Valid || pass.String != password[0] {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("Login Failed"))
-		} else {
-			w.Write([]byte(id.String))
-		}
-
 	}
 }
