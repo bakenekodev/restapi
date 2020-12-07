@@ -31,10 +31,15 @@ SELECT password, id
 FROM credentials 
 WHERE login = $1
 
+-- name: selectPasswordById
+SELECT password
+FROM credentials
+WHERE id = $1
+
 -- name: updatePassword
 UPDATE credentials
 SET password = $2
-WHERE login = $1
+WHERE id = $1
 
 -- name: checkLogin
 SELECT login
