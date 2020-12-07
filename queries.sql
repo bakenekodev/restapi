@@ -27,7 +27,19 @@ FROM users
 WHERE id = $1
 
 -- name: selectPassword
-SELECT password, id FROM credentials WHERE login = $1
+SELECT password, id 
+FROM credentials 
+WHERE login = $1
+
+--name: checkLogin
+SELECT login
+FROM credentials
+WHERE login = $1
+
+--name: insertLogin
+INSERT INTO credentials(login, password)
+VALUES ($1, $2)
+RETURNING id
 
 -- name: selectCars
 SELECT id, mark, model, year, seats

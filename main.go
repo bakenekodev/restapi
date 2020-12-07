@@ -54,6 +54,7 @@ func main() {
 	// Route Handlers / Endpoints
 	// Login
 	r.HandleFunc("/api/login", CheckPassword).Methods("GET")
+	r.HandleFunc("/api/login", CreateLogin).Methods("POST")
 
 	// User
 	r.HandleFunc("/api/users", GetUsers).Methods("GET")
