@@ -49,3 +49,22 @@ func CreateLogin(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
+// ChangePassword function
+func ChangePassword(w http.ResponseWriter, r *http.Request) {
+	login, ok1 := r.URL.Query()["login"]
+	password, ok2 := r.URL.Query()["password"]
+	newPass, ok3 := r.URL.Query()["new"]
+
+	if ok1 && ok2 && ok3 {
+		var pass sql.NullString
+		var id sql.NullString
+		DB.QueryRow(Queries["selectPassword"], login[0]).Scan(&pass, &id)
+		if pass.Valid && pass.String == password[0] {
+			DB.QueryRow(Queries["updatePassword"], login[0], newPass[0])
+		} else {
+			w.WriteHeader(http.StatusBadRequest)
+		}
+	}
+
+}

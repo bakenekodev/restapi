@@ -31,12 +31,17 @@ SELECT password, id
 FROM credentials 
 WHERE login = $1
 
---name: checkLogin
+-- name: updatePassword
+UPDATE credentials
+SET password = $2
+WHERE login = $1
+
+-- name: checkLogin
 SELECT login
 FROM credentials
 WHERE login = $1
 
---name: insertLogin
+-- name: insertLogin
 INSERT INTO credentials(login, password)
 VALUES ($1, $2)
 RETURNING id

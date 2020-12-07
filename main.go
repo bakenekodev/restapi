@@ -55,6 +55,7 @@ func main() {
 	// Login
 	r.HandleFunc("/api/login", CheckPassword).Methods("GET")
 	r.HandleFunc("/api/login", CreateLogin).Methods("POST")
+	r.HandleFunc("/api/login", ChangePassword).Methods("PATCH")
 
 	// User
 	r.HandleFunc("/api/users", GetUsers).Methods("GET")
