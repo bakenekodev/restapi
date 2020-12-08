@@ -84,7 +84,14 @@ SELECT id
 FROM cars
 WHERE id = $1
 
--- name: insertDriverRoute
-INSERT INTO dirvers_trips(driver_id, start_lat, start_lng, end_lat, end_lng, start_time, end_time) 
-VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id
+
+-- name: upsetDriverRoute
+INSERT INTO drivers_trips(driver_id, points) 
+VALUES ($1, $2)
+ON CONFLICT (driver_id)
+DO
+UPDATE SET points = $2
+
+-- name: deleteRoute
+DELETE FROM drivers_trips
+WHERE driver_id = $1

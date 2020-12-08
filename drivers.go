@@ -4,34 +4,37 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+
+	"github.com/lib/pq"
 )
 
 // Route struct
 type Route struct {
-	ID        string `json:"id"`
-	DriverID  string `json:"driver_id"`
-	StartLat  string `json:"start_lat"`
-	StartLng  string `json:"start_lng"`
-	EndLat    string `json:"end_lat"`
-	EndLng    string `json:"end_lng"`
-	StartTime string `json:"start_time"`
-	EndTime   string `json:"end_time"`
+	ID       string `json:"id"`
+	DriverID string `json:"driver_id"`
 }
 
 // CreateDriverRoute adds a driver trip record to database
 func CreateDriverRoute(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	id, ok := r.URL.Query()["id"]
+	driverID, ok := r.URL.Query()["id"]
 	if ok {
-		var trip [][]float32
+		var trip [][]float64
 		_ = json.NewDecoder(r.Body).Decode(&trip)
 
-		log.Println(id)
+		DB.QueryRow(Queries["upsetDriverRoute"], driverID, pq.Array(trip))
+		log.Println(driverID)
 		log.Println(trip)
+	} else {
+		w.WriteHeader(http.StatusBadRequest)
 	}
+}
 
-	//_, err := DB.Exec(Queries["insertDriverRoute"], trip.DriverID, trip.StartLat, trip.StartLng, trip.EndLat, trip.EndLng, trip.StartTime, trip.EndTime)
-	// if err != nil {
-	// 	panic(err.Error())
-	// }
+// FinishRoute function
+func FinishRoute(w http.ResponseWriter, r *http.Request) {
+	driverID, ok := r.URL.Query()["id"]
+	if ok {
+		DB.QueryRow(Queries["deleteRoute"], driverID)
+	} else {
+		w.WriteHeader(http.StatusBadRequest)
+	}
 }

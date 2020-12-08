@@ -65,5 +65,4 @@ func ChangePassword(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
 		}
 	}
-
 }
