@@ -21,7 +21,10 @@ func CreateDriverRoute(w http.ResponseWriter, r *http.Request) {
 		var trip [][]float64
 		_ = json.NewDecoder(r.Body).Decode(&trip)
 
-		DB.QueryRow(Queries["upsetDriverRoute"], driverID, pq.Array(trip))
+		_, err = DB.Exec(Queries["upsetDriverRoute"], driverID, pq.Array(trip))
+		if err != nil {
+			panic(err.Error())
+		}
 		log.Println(driverID)
 		log.Println(trip)
 	} else {
