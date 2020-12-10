@@ -84,6 +84,12 @@ SELECT id
 FROM cars
 WHERE id = $1
 
+-- name: selectRoutes
+SELECT driver_id, points 
+FROM drivers_trips
+
+-- name: getDriversFunc
+SELECT get_drivers($1, $2, $3)
 
 -- name: upsetDriverRoute
 INSERT INTO drivers_trips(driver_id, points) 

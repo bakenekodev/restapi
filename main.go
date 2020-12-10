@@ -72,7 +72,8 @@ func main() {
 	r.HandleFunc("/api/cars/{id}", DeleteCar).Methods("DELETE")
 
 	// Driver
-	r.HandleFunc("/api/drivers", CreateDriverRoute).Methods("POST")
+	r.HandleFunc("/api/passangers", FindRoute).Methods("POST")
+	r.HandleFunc("/api/drivers", CreateRoute).Methods("POST")
 
 	port := os.Getenv("PORT")
 	if port == "" {

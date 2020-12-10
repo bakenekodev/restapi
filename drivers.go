@@ -10,12 +10,12 @@ import (
 
 // Route struct
 type Route struct {
-	ID       string `json:"id"`
-	DriverID string `json:"driver_id"`
+	DriverID string      `json:"driver_id"`
+	Points   [][]float64 `json:"points"`
 }
 
-// CreateDriverRoute adds a driver trip record to database
-func CreateDriverRoute(w http.ResponseWriter, r *http.Request) {
+// CreateRoute adds a driver trip record to database
+func CreateRoute(w http.ResponseWriter, r *http.Request) {
 	driverID, ok := r.URL.Query()["id"]
 	if ok {
 		var trip [][]float64
