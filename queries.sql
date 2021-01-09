@@ -3,7 +3,7 @@ SELECT id, name, surname, telephone, car_id
 FROM users
 
 -- name: selectUserByID
-SELECT id, name, surname, telephone, car_id 
+SELECT id, name, surname, telephone, current_lat, current_lng, car_id 
 FROM users 
 WHERE id = $1
 

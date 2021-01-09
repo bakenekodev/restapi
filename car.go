@@ -15,6 +15,7 @@ type Car struct {
 	Model string `json:"model"`
 	Year  string `json:"year"`
 	Seats string `json:"seats"`
+	Plate string `json:"plate"`
 }
 
 // GetCars function

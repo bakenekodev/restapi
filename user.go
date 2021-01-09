@@ -14,6 +14,8 @@ type User struct {
 	Name    string `json:"name"`
 	Surmane string `json:"surname"`
 	Phone   string `json:"phone"`
+	Lat     string `json:"lat"`
+	Lng     string `json:"lng"`
 	CarID   string `json:"car_id"`
 	carID   sql.NullString
 }
@@ -71,7 +73,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	var user User
 
 	for result.Next() {
-		err := result.Scan(&user.ID, &user.Name, &user.Surmane, &user.Phone, &user.carID)
+		err := result.Scan(&user.ID, &user.Name, &user.Surmane, &user.Phone, &user.Lat, &user.Lng, &user.carID)
 		if user.carID.Valid {
 			user.CarID = user.carID.String
 		}
