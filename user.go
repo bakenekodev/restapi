@@ -10,13 +10,13 @@ import (
 
 // User Struct (Model)
 type User struct {
-	ID      string `json:"id"`
-	Name    string `json:"name"`
-	Surmane string `json:"surname"`
-	Phone   string `json:"phone"`
-	Lat     string `json:"lat"`
-	Lng     string `json:"lng"`
-	CarID   string `json:"car_id"`
+	ID      string  `json:"id"`
+	Name    string  `json:"name"`
+	Surmane string  `json:"surname"`
+	Phone   string  `json:"phone"`
+	Lat     float32 `json:"lat"`
+	Lng     float32 `json:"lng"`
+	CarID   string  `json:"car_id"`
 	carID   sql.NullString
 }
 
