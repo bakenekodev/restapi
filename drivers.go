@@ -36,7 +36,10 @@ func CreateRoute(w http.ResponseWriter, r *http.Request) {
 func FinishRoute(w http.ResponseWriter, r *http.Request) {
 	driverID, ok := r.URL.Query()["id"]
 	if ok {
-		DB.QueryRow(Queries["deleteRoute"], driverID[0])
+		_, err = DB.Exec(Queries["deleteRoute"], driverID[0])
+		if err != nil {
+			panic(err)
+		}
 	} else {
 		w.WriteHeader(http.StatusBadRequest)
 	}
