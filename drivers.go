@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -42,5 +43,36 @@ func FinishRoute(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		w.WriteHeader(http.StatusBadRequest)
+	}
+}
+
+// CheckPassengers func
+func CheckPassengers(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	driverID, ok := r.URL.Query()["id"]
+
+	var users []int32
+	if ok {
+		log.Println(driverID[0])
+		results, err := DB.Query(Queries["checkPassengers"], driverID[0])
+		if err != nil {
+			panic(err.Error())
+		}
+		defer results.Close()
+		for results.Next() {
+			var userID sql.NullInt32
+			err := results.Scan(&userID)
+			if err != nil {
+				panic(err.Error())
+			}
+			users = append(users, userID.Int32)
+		}
+		log.Println(users)
+		if len(users) > 0 {
+			json.NewEncoder(w).Encode(users)
+		} else {
+			w.WriteHeader(http.StatusNoContent)
+		}
 	}
 }

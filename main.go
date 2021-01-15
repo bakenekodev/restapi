@@ -71,8 +71,13 @@ func main() {
 	r.HandleFunc("/api/cars/{id}", UpdateCar).Methods("PUT")
 	r.HandleFunc("/api/cars/{id}", DeleteCar).Methods("DELETE")
 
+	// Passenger
+	r.HandleFunc("/api/passengers", AcceptDriver).Methods("GET")
+	r.HandleFunc("/api/passengers", FindRoute).Methods("POST")
+	r.HandleFunc("/api/passengers", DeclineDriver).Methods("DELETE")
+
 	// Driver
-	r.HandleFunc("/api/passangers", FindRoute).Methods("POST")
+	r.HandleFunc("/api/drivers", CheckPassengers).Methods("GET")
 	r.HandleFunc("/api/drivers", CreateRoute).Methods("POST")
 	r.HandleFunc("/api/drivers", FinishRoute).Methods("DELETE")
 

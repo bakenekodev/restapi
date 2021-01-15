@@ -44,3 +44,28 @@ func FindRoute(w http.ResponseWriter, r *http.Request) {
 	log.Println(d)
 	json.NewEncoder(w).Encode(d)
 }
+
+// AcceptDriver function
+func AcceptDriver(w http.ResponseWriter, r *http.Request) {
+	driverID, ok := r.URL.Query()["driver_id"]
+	id, ok2 := r.URL.Query()["id"]
+	if ok && ok2 {
+		_, err := DB.Exec(Queries["acceptDriver"], id[0], driverID[0])
+		if err != nil {
+			panic(err.Error())
+		}
+	} else {
+		w.WriteHeader(http.StatusBadRequest)
+	}
+}
+
+// DeclineDriver func
+func DeclineDriver(w http.ResponseWriter, r *http.Request) {
+	id, ok := r.URL.Query()["id"]
+	if ok {
+		_, err := DB.Exec(Queries["declineDriver"], id[0])
+		if err != nil {
+			panic(err.Error())
+		}
+	}
+}

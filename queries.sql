@@ -101,3 +101,16 @@ UPDATE SET points = $2
 -- name: deleteRoute
 DELETE FROM drivers_trips
 WHERE driver_id = $1
+
+-- name: acceptDriver
+INSERT INTO passengers_trips(user_id, driver_id)
+VALUES ($1, $2)
+
+-- name: checkPassengers
+SELECT user_id 
+FROM passengers_trips 
+WHERE driver_id = $1
+
+-- name: declineDriver
+DELETE FROM passengers_trips
+WHERE user_id = $1
