@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -61,12 +60,12 @@ func CheckPassengers(w http.ResponseWriter, r *http.Request) {
 		}
 		defer results.Close()
 		for results.Next() {
-			var userID sql.NullInt32
+			var userID int32
 			err := results.Scan(&userID)
 			if err != nil {
 				panic(err.Error())
 			}
-			users = append(users, userID.Int32)
+			users = append(users, userID)
 		}
 		log.Println(users)
 		if len(users) > 0 {
