@@ -114,3 +114,8 @@ WHERE driver_id = $1
 -- name: declineDriver
 DELETE FROM passengers_trips
 WHERE user_id = $1
+
+-- name: updatePos
+UPDATE users
+SET current_lat = $2, current_lng = $3
+WHERE id = $1

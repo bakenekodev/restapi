@@ -146,3 +146,19 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		panic(err.Error())
 	}
 }
+
+// UpdatePos func
+func UpdatePos(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	userID := mux.Vars(r)["id"]
+
+	var coords []float32
+
+	_ = json.NewDecoder(r.Body).Decode(&coords)
+
+	_, err := DB.Exec(Queries["updatePos"], userID, coords[0], coords[1])
+	if err != nil {
+		panic(err.Error())
+	}
+}

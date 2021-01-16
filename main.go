@@ -63,6 +63,7 @@ func main() {
 	r.HandleFunc("/api/users/{id}", GetUser).Methods("GET")
 	r.HandleFunc("/api/users/{id}", UpdateUser).Methods("PUT")
 	r.HandleFunc("/api/users/{id}", DeleteUser).Methods("DELETE")
+	r.HandleFunc("/api/users/{id}", UpdatePos).Methods("PATCH")
 
 	// Car
 	r.HandleFunc("/api/cars", GetCars).Methods("GET")
