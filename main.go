@@ -52,12 +52,18 @@ func main() {
 	r := mux.NewRouter()
 
 	// Route Handlers / Endpoints
+	// Login
+	r.HandleFunc("/api/login", CheckPassword).Methods("GET")
+	r.HandleFunc("/api/login", CreateLogin).Methods("POST")
+	r.HandleFunc("/api/login", ChangePassword).Methods("PATCH")
+
 	// User
 	r.HandleFunc("/api/users", GetUsers).Methods("GET")
 	r.HandleFunc("/api/users", CreateUser).Methods("POST")
 	r.HandleFunc("/api/users/{id}", GetUser).Methods("GET")
 	r.HandleFunc("/api/users/{id}", UpdateUser).Methods("PUT")
 	r.HandleFunc("/api/users/{id}", DeleteUser).Methods("DELETE")
+	r.HandleFunc("/api/users/{id}", UpdatePos).Methods("PATCH")
 
 	// Car
 	r.HandleFunc("/api/cars", GetCars).Methods("GET")
@@ -66,8 +72,15 @@ func main() {
 	r.HandleFunc("/api/cars/{id}", UpdateCar).Methods("PUT")
 	r.HandleFunc("/api/cars/{id}", DeleteCar).Methods("DELETE")
 
+	// Passenger
+	r.HandleFunc("/api/passengers", AcceptDriver).Methods("GET")
+	r.HandleFunc("/api/passengers", FindRoute).Methods("POST")
+	r.HandleFunc("/api/passengers", DeclineDriver).Methods("DELETE")
+
 	// Driver
-	r.HandleFunc("/api/drivers", CreateDriverRoute).Methods("POST")
+	r.HandleFunc("/api/drivers", CheckPassengers).Methods("GET")
+	r.HandleFunc("/api/drivers", CreateRoute).Methods("POST")
+	r.HandleFunc("/api/drivers", FinishRoute).Methods("DELETE")
 
 	port := os.Getenv("PORT")
 	if port == "" {

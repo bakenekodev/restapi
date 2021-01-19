@@ -2,29 +2,76 @@ package main
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
+
+	"github.com/lib/pq"
 )
 
 // Route struct
 type Route struct {
-	ID        string `json:"id"`
-	DriverID  string `json:"driver_id"`
-	StartLat  string `json:"start_lat"`
-	StartLng  string `json:"start_lng"`
-	EndLat    string `json:"end_lat"`
-	EndLng    string `json:"end_lng"`
-	StartTime string `json:"start_time"`
-	EndTime   string `json:"end_time"`
+	DriverID string      `json:"driver_id"`
+	Points   [][]float64 `json:"points"`
 }
 
-// CreateDriverRoute adds a driver trip record to database
-func CreateDriverRoute(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	var trip Route
-	_ = json.NewDecoder(r.Body).Decode(&trip)
+// CreateRoute adds a driver trip record to database
+func CreateRoute(w http.ResponseWriter, r *http.Request) {
+	driverID, ok := r.URL.Query()["id"]
+	if ok {
+		var trip [][]float64
+		_ = json.NewDecoder(r.Body).Decode(&trip)
 
-	_, err := DB.Exec(Queries["insertDriverRoute"], trip.DriverID, trip.StartLat, trip.StartLng, trip.EndLat, trip.EndLng, trip.StartTime, trip.EndTime)
-	if err != nil {
-		panic(err.Error())
+		_, err = DB.Exec(Queries["upsetDriverRoute"], driverID[0], pq.Array(trip))
+		if err != nil {
+			panic(err.Error())
+		}
+		log.Println(driverID)
+		log.Println(trip)
+	} else {
+		w.WriteHeader(http.StatusBadRequest)
+	}
+}
+
+// FinishRoute function
+func FinishRoute(w http.ResponseWriter, r *http.Request) {
+	driverID, ok := r.URL.Query()["id"]
+	if ok {
+		_, err = DB.Exec(Queries["deleteRoute"], driverID[0])
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		w.WriteHeader(http.StatusBadRequest)
+	}
+}
+
+// CheckPassengers func
+func CheckPassengers(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	driverID, ok := r.URL.Query()["id"]
+
+	var users []int32
+	if ok {
+		log.Println(driverID[0])
+		results, err := DB.Query(Queries["checkPassengers"], driverID[0])
+		if err != nil {
+			panic(err.Error())
+		}
+		defer results.Close()
+		for results.Next() {
+			var userID int32
+			err := results.Scan(&userID)
+			if err != nil {
+				panic(err.Error())
+			}
+			users = append(users, userID)
+		}
+		log.Println(users)
+		if len(users) > 0 {
+			json.NewEncoder(w).Encode(users)
+		} else {
+			w.WriteHeader(http.StatusNoContent)
+		}
 	}
 }

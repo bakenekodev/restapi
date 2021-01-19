@@ -1,21 +1,21 @@
 -- name: selectUsers
-SELECT id, login, password, name, surname, telephone, car_id 
+SELECT id, name, surname, telephone, car_id 
 FROM users
 
 -- name: selectUserByID
-SELECT id, login, password, name, surname, telephone, car_id 
+SELECT id, name, surname, telephone, current_lat, current_lng, car_id 
 FROM users 
 WHERE id = $1
 
 -- name: insertUser
-INSERT INTO users(login, password, name, surname, telephone, car_id) 
-VALUES($1, $2, $3, $4, $5, $6)
+INSERT INTO users(id, name, surname, telephone, car_id) 
+VALUES($1, $2, $3, $4, $5)
 RETURNING id
 
 -- name: updateUserByID
 UPDATE users 
-SET login = $1, password = $2, name = $3, surname = $4, telephone = $5, car_id = $6 
-WHERE id = $7
+SET name = $1, surname = $2, telephone = $3, car_id = $4 
+WHERE id = $5
 
 -- name: deleteUserByID
 DELETE FROM users 
@@ -25,6 +25,31 @@ WHERE id = $1
 SELECT id
 FROM users
 WHERE id = $1
+
+-- name: selectPassword
+SELECT password, id 
+FROM credentials 
+WHERE login = $1
+
+-- name: selectPasswordById
+SELECT password
+FROM credentials
+WHERE id = $1
+
+-- name: updatePassword
+UPDATE credentials
+SET password = $2
+WHERE id = $1
+
+-- name: checkLogin
+SELECT login
+FROM credentials
+WHERE login = $1
+
+-- name: insertLogin
+INSERT INTO credentials(login, password)
+VALUES ($1, $2)
+RETURNING id
 
 -- name: selectCars
 SELECT id, mark, model, year, seats
@@ -59,7 +84,38 @@ SELECT id
 FROM cars
 WHERE id = $1
 
--- name: insertDriverRoute
-INSERT INTO dirvers_trips(driver_id, start_lat, start_lng, end_lat, end_lng, start_time, end_time) 
-VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id
+-- name: selectRoutes
+SELECT driver_id, points 
+FROM drivers_trips
+
+-- name: getDriversFunc
+SELECT get_drivers($1, $2, $3)
+
+-- name: upsetDriverRoute
+INSERT INTO drivers_trips(driver_id, points) 
+VALUES ($1, $2)
+ON CONFLICT (driver_id)
+DO
+UPDATE SET points = $2
+
+-- name: deleteRoute
+DELETE FROM drivers_trips
+WHERE driver_id = $1
+
+-- name: acceptDriver
+INSERT INTO passengers_trips(user_id, driver_id)
+VALUES ($1, $2)
+
+-- name: checkPassengers
+SELECT user_id 
+FROM passengers_trips 
+WHERE driver_id = $1
+
+-- name: declineDriver
+DELETE FROM passengers_trips
+WHERE user_id = $1
+
+-- name: updatePos
+UPDATE users
+SET current_lat = $2, current_lng = $3
+WHERE id = $1
