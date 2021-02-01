@@ -1,6 +1,6 @@
 # GO Lang REST API
 
-> RESTful API to handle requests from the HitchHike application. Connected with a MySQL server from Google Cloud.
+> RESTful API to handle requests from the HitchHike application. Connected with a Postgres database from Heroku.
 
 
 ## Endpoints
